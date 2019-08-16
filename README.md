@@ -1,6 +1,8 @@
 # scumlogs
 g-portal logs downloader for scum servers
+
 is incremental, adds new lines to last updated files and create new ones from last execution
+
 created to keep a backup of the server logs in local
 
 run once to generate a new ini file
