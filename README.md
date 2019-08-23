@@ -14,12 +14,18 @@ when you access your gportal server you can see serverid value in url: https://w
 
 include in crontab or in windows task manager to run periodicaly
 
+Now is included scumlogs GUI
 
-Modules:
+Instructions
 
-	pip install aiocfscrape
-	pip install bs4
-	pip install pysimplegui
+	Install python 3.7.4 on your system
+	Download all files and decompress in a folder
+		
+	pip install -r requirements.txt
 	
-
-now include scumlogs GUI for windows
+	Run scumlogs:
+		python scumlogs.py
+		
+	Run gui that run scumlogs:
+		python scumlogsgui.py
+	
