@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # g-portal logs downloader for scum servers
-# by scr developments
+# by GAMEBotLand.com
 
 import json
 import asyncio
@@ -9,26 +9,24 @@ from aiocfscrape import CloudflareScraper
 from configparser import ConfigParser
 from datetime import datetime
 
-
 def log(text):
-    print('[%s] %s' % (datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S'), text))
+    print('[%s] %s' % (datetime.strftime(datetime.now(), '%H:%M:%S'), text))
 
 def help():
     print('\nPlease edit scumlogs.ini and include your g-portal credentials, use:')
-    print('  email = yourgportalemail')
-    print('  password = yourgportalpassword')
-    print('  serverid = gportalserverid')
-    print('  gportal_loc = com (for gportal international) or us (for gportal us)')
-    print('  download_path = path to store your log files\n')
-
+    print('  user = gportal email or username')
+    print('  password = gportal password')
+    print('  serverid = gportal server id')
+    print('  loc = com (for gportal international) or us (for gportal us)')
+    print('  folder = blank for local or path folder to store your log files')
+    print('  leave the rest of the parameters as is\n')
 
 def load_configini():
     config = ConfigParser()
     with open('scumlogs.ini', 'r') as f:
-        config.readfp(f)
+        config.read_file(f)
     global configini
     configini = dict(config['GPORTAL'])
-
 
 def save_configini():
     parser = ConfigParser()
@@ -40,22 +38,42 @@ def save_configini():
 
 
 async def read_logs():
-    async with CloudflareScraper(loop=loop) as session2:
+    values = ('user','password','serverid','loc','folder','admin_file','admin_line','chat_file','chat_line','kill_file','kill_line','login_file','login_line','violations_file','violations_line')
+    print('scumlogs v1.0, scum server logs downloader from gportal\nby htttps://GAMEBotLand.com')
+    try:
+        load_configini()
+    except:
+        global configini
+        configini = {}
+    for value in values:
+        if value not in configini:
+            configini[value] = ''
+    save_configini()
+
+    if configini['loc'] == 'com':
+        loc = 'com'
+    else:
+        loc = 'us'
+    URL_LOGIN = 'https://id2.g-portal.com/login?redirect=https://www.g-portal.{}/en/gportalid/login?'.format(configini['loc'])
+    URL_LOGS = 'https://www.g-portal.{}/en/scum/logs/{}'.format(configini['loc'], configini['serverid'])
+
+    async with CloudflareScraper() as session:
         try:
             log('connecting g-portal...')
-            raw_response = await session2.get(URL_LOGIN)
-            response = await raw_response.text()
-            payload = {'_method': 'POST', 'login': configini['email'], 'password': configini['password'],
+            payload = {'_method': 'POST', 'login': configini['user'], 'password': configini['password'],
                        'rememberme': '1'}
-            raw_response = await session2.post(URL_LOGIN, data=payload)
-            response = await raw_response.text()
-            raw_response = await session2.get(URL_LOGS)
-
-            response = await raw_response.text()
+            async with session.post(URL_LOGIN, data=payload) as raw_response:
+                response = await raw_response.text()
+            async with session.get(URL_LOGS) as raw_response:
+                response = await raw_response.text()
             html = BeautifulSoup(response, 'html.parser')
             select = html.find('div', {'class': 'wrapper logs'})
             loglist = select['data-logs']
             logs = json.loads(loglist)
+
+            if configini['folder'] != '':
+                if configini['folder'][-1:] != '/' and configini['folder'][-1:] != '\\':
+                    configini['folder'] = configini['folder'] + '/'
 
             for i in range(len(logs)):
                 getid = logs["file_" + str(i + 1)]
@@ -66,11 +84,11 @@ async def read_logs():
                     if id < configini[type + '_file']:
                         continue
                 payload = {'_method': 'POST', 'load': 'true', 'ExtConfig[config]': getid}
-                raw_response = await session2.post(URL_LOGS, data=payload)
-                response = await raw_response.text()
+                async with session.post(URL_LOGS, data=payload) as raw_response:
+                    response = await raw_response.text()
                 content = json.loads(response)
                 lines = content["ExtConfig"]["content"].splitlines()
-                filename = configini['downloads_path'] + id
+                filename = configini['folder'] + id
                 file = open(filename, "a+", encoding='utf-8')
                 found = False
                 writing = False
@@ -90,40 +108,14 @@ async def read_logs():
                 file.close()
                 configini[type + '_file'] = id
                 configini[type + '_line'] = lines[-1]
-            await session2.close()
+
             save_configini()
         except:
             log('error connecting, check connectivity and scumlogs.ini')
             help()
-
+        await session.close()
 
 if __name__ == '__main__':
-
-    values = ('email','password','serverid','gportal_loc','downloads_path','admin_file','admin_line','chat_file','chat_line','kill_file','kill_line','login_file','login_line','violations_file','violations_line')
-
-    print('scumlogs v1.0, gets logs from gportal scum servers, scr developments')
-    try:
-        load_configini()
-    except:
-        global configini
-        configini = {}
-        for value in values:
-            if value not in configini:
-                configini[value] = ''
-        save_configini()
-
-    if configini['gportal_loc'] == 'com':
-        loc = 'com'
-    else:
-        loc = 'us'
-    URL_LOGIN = 'https://id2.g-portal.com/login?redirect=https://www.g-portal.{}/en/gportalid/login?'.format(loc)
-    URL_LOGS = 'https://www.g-portal.{}/en/scum/logs/{}'.format(loc, configini['serverid'])
-
     loop = asyncio.get_event_loop()
     loop.run_until_complete(read_logs())
     loop.close()
-
-
-
-
-
