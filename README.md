@@ -19,6 +19,6 @@ Modules:
 
 	pip install aiocfscrape
 	pip install bs4
-
-GUI:
 	pip install pysimplegui
+	
+
