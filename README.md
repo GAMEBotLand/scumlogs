@@ -22,3 +22,4 @@ Modules:
 	pip install pysimplegui
 	
 
+now include scumlogs GUI for windows
