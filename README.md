@@ -1,5 +1,5 @@
 # scumlogs
-scumlogs v1.0, gets logs from gportal scum servers, by GAMEBotLand.com
+scumlogs v1.0, gets logs from gportal scum servers, by https://gamebotland.com
 
 is incremental, adds new lines to last updated files and create new ones from last execution
 
