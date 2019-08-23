@@ -72,15 +72,22 @@ def main_gui():
         if event in (None, 'Exit'):
             break
         elif event == 'Start':
+            configini['user'] = values['user']
+            configini['password'] = values['password']
+            configini['serverid'] = values['serverid']
+            configini['folder'] = values['folder']
+            if values['com']:
+                configini['loc'] = 'com'
+            else:
+                configini['loc'] = 'us'
+            save_configini(configini)
             print('started...')
-            runCommand(configini, cmd='python scumlogs.py', timeout=100, window=window)
-            #runCommand(configini, cmd='scumlogs.exe', timeout=100, window=window)
+            runCommand(cmd='python scumlogs.py', timeout=100, window=window)
+            #runCommand(cmd='scumlogs.exe', timeout=100, window=window)
             print('finished...')
     window.Close()
 
-def runCommand(configini, cmd, timeout=100, window=None):
-    save_configini(configini)
-
+def runCommand(cmd, timeout=None, window=None):
     p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     output = ''
     for line in p.stdout:
