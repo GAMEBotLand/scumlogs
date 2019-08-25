@@ -59,10 +59,6 @@ async def read_logs(gui_queue):
             loglist = select['data-logs']
             logs = json.loads(loglist)
 
-            if configini['folder'] != '':
-                if configini['folder'][-1:] != '/' and configini['folder'][-1:] != '\\':
-                    configini['folder'] = configini['folder'] + '/'
-
             for i in range(len(logs)):
                 getid = logs["file_" + str(i + 1)]
                 id = (getid[int(getid.find('Logs')) + 5:])
@@ -175,6 +171,9 @@ async def the_gui():
                 configini['password'] = values['password']
                 configini['serverid'] = values['serverid']
                 configini['folder'] = values['folder']
+                if configini['folder'] != '':
+                    if configini['folder'][-1:] != '/' and configini['folder'][-1:] != '\\':
+                        configini['folder'] = configini['folder'] + '/'
                 if values['com']:
                     configini['loc'] = 'com'
                 else:

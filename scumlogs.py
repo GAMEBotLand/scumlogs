@@ -48,6 +48,9 @@ async def read_logs():
     for value in values:
         if value not in configini:
             configini[value] = ''
+    if configini['folder'] != '':
+        if configini['folder'][-1:] != '/' and configini['folder'][-1:] != '\\':
+            configini['folder'] = configini['folder'] + '/'
     save_configini()
 
     if configini['loc'] == 'com':
@@ -70,10 +73,6 @@ async def read_logs():
             select = html.find('div', {'class': 'wrapper logs'})
             loglist = select['data-logs']
             logs = json.loads(loglist)
-
-            if configini['folder'] != '':
-                if configini['folder'][-1:] != '/' and configini['folder'][-1:] != '\\':
-                    configini['folder'] = configini['folder'] + '/'
 
             for i in range(len(logs)):
                 getid = logs["file_" + str(i + 1)]
