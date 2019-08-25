@@ -26,6 +26,6 @@ Instructions
 	Run scumlogs:
 		python scumlogs.py
 		
-	Run gui that run scumlogs:
+	Run gui with embeded scumlogs:
 		python scumlogsgui.py
 	
