@@ -23,7 +23,7 @@ def help():
 
 def load_configini():
     config = ConfigParser()
-    with open('scumlogs.ini', 'r') as f:
+    with open('scumlogs.ini', 'r', encoding="utf-8") as f:
         config.read_file(f)
     global configini
     configini = dict(config['GPORTAL'])
@@ -33,7 +33,7 @@ def save_configini():
     parser.add_section('GPORTAL')
     for key in configini.keys():
         parser.set('GPORTAL', key, configini[key])
-    with open('scumlogs.ini', 'w') as f:
+    with open('scumlogs.ini', 'w', encoding="utf-8") as f:
         parser.write(f)
 
 

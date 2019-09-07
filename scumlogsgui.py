@@ -10,6 +10,7 @@ from configparser import ConfigParser
 from datetime import datetime
 import queue
 import PySimpleGUI as sg
+import time
 import webbrowser
 
 
@@ -18,8 +19,8 @@ def log(text):
 
 
 def help():
-    print('\nPlease edit scumlogs.ini and include your g-portal credentials, use:')
-    print('  user = yourg portal email  or username')
+    print('\nPlease complete your g-portal credentials or edit scumlogs.ini,\nuse:')
+    print('  user = your gportal email  or username')
     print('  password = your gportal password')
     print('  serverid = gportal server id')
     print('  loc = com (for gportal international) or us (for gportal us)')
@@ -29,7 +30,7 @@ def help():
 
 def load_configini():
     config = ConfigParser()
-    with open('scumlogs.ini', 'r') as f:
+    with open('scumlogs.ini', 'r', encoding="utf-8") as f:
         config.read_file(f)
     global configini
     configini = dict(config['GPORTAL'])
@@ -40,7 +41,7 @@ def save_configini():
     parser.add_section('GPORTAL')
     for key in configini.keys():
         parser.set('GPORTAL', key, configini[key])
-    with open('scumlogs.ini', 'w') as f:
+    with open('scumlogs.ini', 'w', encoding="utf-8") as f:
         parser.write(f)
 
 
@@ -94,7 +95,7 @@ async def read_logs(gui_queue):
                 configini[type + '_line'] = lines[-1]
             save_configini()
         except:
-            log('error connecting, check connectivity and scumlogs.ini')
+            log('error connecting, check connectivity and credentials')
             help()
         await session.close()
     gui_queue.put('finished...')
@@ -124,44 +125,42 @@ async def the_gui():
                   [sg.Radio('G-Portal international', "RADIO1", default=True, key='com', size=(18, 1)),
                    sg.Radio('G-Portal us', "RADIO1", key='us')]
               ], title='G-Portal server info', size=(200, 100))],
-              [sg.Output(size=(62, 12), pad=((0, 0), (2, 0)), font='Sans 10')],
+              [sg.Output(size=(62, 20), pad=((0, 0), (2, 0)), font='Sans 10')],
               [sg.Button('Start', size=(15, 1), bind_return_key=True, focus=True),
                sg.SimpleButton('Exit', size=(15, 1), button_color=('white', 'firebrick3')),
                sg.Text("GAMEBotLand.com", justification='right', click_submits='GAMEBotLand.com')]]
 
-    window = sg.Window('GAMEBotLand scumlogs v1.0',
+    window = sg.Window('GAMEBotLand scumlogs v1.0', layout,
                        auto_size_text=False,
                        auto_size_buttons=False,
                        no_titlebar=True,
                        grab_anywhere=True,
-                       size=(500, 800))
-    window.Layout(layout)
+                       size=(500, 650))
 
     values = (
     'user', 'password', 'serverid', 'loc', 'folder', 'admin_file', 'admin_line', 'chat_file', 'chat_line', 'kill_file',
     'kill_line', 'login_file', 'login_line', 'violations_file', 'violations_line')
     try:
         load_configini()
-        if configini['loc'] == 'com':
-            loc = 'com'
-            window.FindElement('com').Update(True)
-        else:
-            loc = 'us'
-            window.FindElement('us').Update(True)
-        window.FindElement('user').Update(configini['user'])
-        window.FindElement('password').Update(configini['password'])
-        window.FindElement('serverid').Update(configini['serverid'])
-        window.FindElement('folder').Update(configini['folder'])
-
     except:
         configini = {}
     for value in values:
         if value not in configini:
             configini[value] = ''
     save_configini()
-
+    start = True
     while True:
         event, values = window.Read(timeout=10)
+        if start:
+            if configini['loc'] == 'com':
+                window.FindElement('com').Update(True)
+            else:
+                window.FindElement('us').Update(True)
+            window.FindElement('user').Update(configini['user'])
+            window.FindElement('password').Update(configini['password'])
+            window.FindElement('serverid').Update(configini['serverid'])
+            window.FindElement('folder').Update(configini['folder'])
+            start = False
         if event is None or event == 'Exit':
             break
         elif event == 'Start':
