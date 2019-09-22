@@ -29,3 +29,5 @@ Instructions
 	Run gui with embeded scumlogs:
 		python scumlogsgui.py
 	
+
+<a href="https://paypal.me/scrdevelopments">Paypal donate!</a>
