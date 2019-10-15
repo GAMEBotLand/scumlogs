@@ -6,7 +6,7 @@ import json
 import asyncio
 from bs4 import BeautifulSoup
 from aiocfscrape import CloudflareScraper
-from configparser import ConfigParser
+from configparser import RawConfigParser
 from datetime import datetime
 
 def log(text):
@@ -22,14 +22,14 @@ def help():
     print('  leave the rest of the parameters as is\n')
 
 def load_configini():
-    config = ConfigParser()
+    config = RawConfigParser()
     with open('scumlogs.ini', 'r', encoding="utf-8") as f:
         config.read_file(f)
     global configini
     configini = dict(config['GPORTAL'])
 
 def save_configini():
-    parser = ConfigParser()
+    parser = RawConfigParser()
     parser.add_section('GPORTAL')
     for key in configini.keys():
         parser.set('GPORTAL', key, configini[key])

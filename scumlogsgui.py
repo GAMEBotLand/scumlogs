@@ -6,7 +6,7 @@ import json
 import asyncio
 from bs4 import BeautifulSoup
 from aiocfscrape import CloudflareScraper
-from configparser import ConfigParser
+from configparser import RawConfigParser
 from datetime import datetime
 import queue
 import PySimpleGUI as sg
@@ -29,7 +29,7 @@ def help():
 
 
 def load_configini():
-    config = ConfigParser()
+    config = RawConfigParser()
     with open('scumlogs.ini', 'r', encoding="utf-8") as f:
         config.read_file(f)
     global configini
@@ -37,7 +37,7 @@ def load_configini():
 
 
 def save_configini():
-    parser = ConfigParser()
+    parser = RawConfigParser()
     parser.add_section('GPORTAL')
     for key in configini.keys():
         parser.set('GPORTAL', key, configini[key])
