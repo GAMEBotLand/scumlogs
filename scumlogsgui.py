@@ -49,11 +49,12 @@ async def read_logs(gui_queue):
     async with CloudflareScraper(loop=loop) as session:
         try:
             log('connecting g-portal...')
+            headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)'}
             payload = {'_method': 'POST', 'login': configini['user'], 'password': configini['password'],
                        'rememberme': '1'}
-            async with session.post(URL_LOGIN, data=payload) as raw_response:
+            async with session.post(URL_LOGIN, headers=headers, data=payload) as raw_response:
                 response = await raw_response.text()
-            async with session.get(URL_LOGS) as raw_response:
+            async with session.get(URL_LOGS, headers=headers) as raw_response:
                 response = await raw_response.text()
             html = BeautifulSoup(response, 'html.parser')
             select = html.find('div', {'class': 'wrapper logs'})
@@ -69,7 +70,7 @@ async def read_logs(gui_queue):
                     if id < configini[type + '_file']:
                         continue
                 payload = {'_method': 'POST', 'load': 'true', 'ExtConfig[config]': getid}
-                async with session.post(URL_LOGS, data=payload) as raw_response:
+                async with session.post(URL_LOGS, headers=headers, data=payload) as raw_response:
                     response = await raw_response.text()
                 content = json.loads(response)
                 lines = content["ExtConfig"]["content"].splitlines()
