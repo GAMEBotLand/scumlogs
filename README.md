@@ -7,7 +7,11 @@ created to keep a backup of the server logs in local
 
 run once to generate a new ini file, edit ini file and complete gportal data
 
-when you access your gportal server you can see serverid value in url: https://www.g-portal.com/en/scum/status/XXXXXX
+when you access your gportal server you can see serverid value in url:
+
+https://www.g-portal.com/server/GAME/XXXXXX
+or
+https://www.g-portal.us/server/GAME/XXXXXX
 
 - for gportal international set: gportal_loc = com
 - for gportal us set: gportal_loc = us
