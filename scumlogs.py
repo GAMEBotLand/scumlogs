@@ -5,9 +5,10 @@
 import json
 import asyncio
 from bs4 import BeautifulSoup
-import cfscrape
 from configparser import RawConfigParser
 from datetime import datetime
+import cfscrape
+import requests
 
 def log(text):
     print('[%s] %s' % (datetime.strftime(datetime.now(), '%H:%M:%S'), text))
@@ -54,17 +55,17 @@ async def read_logs():
     save_configini()
 
     if configini['loc'] == 'com':
-        loc = 'com'
+        loc = 'eur'
+        URL_LOGIN = 'https://id2.g-portal.com/login?redirect=https://www.g-portal.com/:regionPrefix/auth/login?redirectAfterLogin=%2F&defaultRegion=EU'
     else:
-        loc = 'us'
-    URL_LOGIN = 'https://id2.g-portal.com/login?redirect=https://www.g-portal.{0}/auth/login?redirectAfterLogin=https://www.g-portal.{0}/es/'.format(configini['loc'])
-    URL_LOGS = 'https://www.g-portal.{0}/server/scum/{1}/logs'.format(configini['loc'], configini['serverid'])
+        loc = 'int'
+        URL_LOGIN = 'https://id2.g-portal.com/login?redirect=https://www.g-portal.com/:regionPrefix/auth/login?redirectAfterLogin=%2F&defaultRegion=US'
+    URL_LOGS = 'https://www.g-portal.com/{0}/server/scum/{1}/logs'.format(loc, configini['serverid'])
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)'}
     with cfscrape.create_scraper() as session:
         try:
             log('connecting g-portal...')
-            payload = {'_method': 'POST', 'login': configini['user'], 'password': configini['password'],
-                       'rememberme': '1'}
+            payload = {'_method': 'POST', 'login': configini['user'], 'password': configini['password'], 'rememberme': '1'}
             raw_response = session.post(URL_LOGIN, headers=headers, data=payload)
             raw_response = session.get(URL_LOGS, headers=headers)
             response = raw_response.text
